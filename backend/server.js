@@ -4,11 +4,12 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
 
-// Middleware
+// السماح بجميع النطاقات للتجربة
 app.use(cors({
-    origin: ['https://dz-sentivision.netlify.app', 'http://localhost:5500'],
+    origin: '*',
     credentials: true
 }));
+
 app.use(express.json());
 
 // الاتصال بقاعدة البيانات
