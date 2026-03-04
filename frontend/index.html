@@ -223,54 +223,6 @@
             margin-bottom: 1px;
         }
         
-        /* تنسيقات جديدة لأزرار التحليل */
-        .analysis-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-        
-        .analysis-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-decoration: none;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .analysis-btn i {
-            font-size: 1.3rem;
-        }
-        
-        .analysis-btn.text-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .analysis-btn.text-btn:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .analysis-btn.image-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-        
-        .analysis-btn.image-btn:hover {
-            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(240, 147, 251, 0.4);
-        }
-        
     </style>
 </head>
 <body>
@@ -282,18 +234,6 @@
             <h2> نظام ذكي جزائري لتحليل المشاعر  </h2>
                <h2> يعتمد على النصوص والصور لاستخراج المشاعر بدقة</h2>
         </header>
-        
-        <!-- قسم أزرار التحليل الجديد -->
-        <div class="analysis-buttons">
-            <a href="analyze-text.html" class="analysis-btn text-btn">
-                <i class="fas fa-font"></i>
-                تحليل النص
-            </a>
-            <a href="analyze-image.html" class="analysis-btn image-btn">
-                <i class="fas fa-image"></i>
-                تحليل الصور
-            </a>
-        </div>
         
         <div class="content" style="display: flex; gap: 20px; justify-content: center;">
             <a href="login.html" class="start-btn" style="width: auto; padding: 10px 30px;">
