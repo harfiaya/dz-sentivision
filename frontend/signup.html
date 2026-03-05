@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* أنماط CSS كما هي - احتفظ بها كما كانت */
         * {
             margin: 0;
             padding: 0;
@@ -267,7 +268,7 @@
         <div class="signup-card">
             <h2>إنشاء حساب جديد</h2>
             
-            <form id="signupForm" onsubmit="return false;">
+            <form id="signupForm">
                 <div class="input-group">
                     <label><i class="fas fa-user"></i> الاسم الكامل</label>
                     <input type="text" id="fullname" placeholder="أدخل اسمك الكامل" required>
@@ -294,7 +295,7 @@
                     <label for="terms">أوافق على <a href="#">شروط الخدمة</a> و <a href="#">سياسة الخصوصية</a></label>
                 </div>
                 
-                <button type="submit" class="signup-btn" onclick="handleSignup()">
+                <button type="submit" class="signup-btn">
                     <i class="fas fa-user-plus"></i> اشترك الآن
                 </button>
                 
@@ -305,8 +306,8 @@
                 <div class="or-divider">أو</div>
                 
                 <div class="social-signup">
-                    <button class="social-btn"><i class="fab fa-google"></i> جوجل</button>
-                    <button class="social-btn"><i class="fab fa-facebook-f"></i> فيسبوك</button>
+                    <button type="button" class="social-btn"><i class="fab fa-google"></i> جوجل</button>
+                    <button type="button" class="social-btn"><i class="fab fa-facebook-f"></i> فيسبوك</button>
                 </div>
             </form>
         </div>
@@ -320,103 +321,116 @@
         </footer>
     </div>
 
-    <script src="js/auth.js"></script>
     <script>
-// رابط الخادم - تأكد من صحته
-const API_URL = 'https://dz-sentivision-api.onrender.com';
-
-// دالة التسجيل
-async function signup(fullname, email, password) {
-    try {
-        console.log('محاولة التسجيل:', { fullname, email, password });
+        // رابط الخادم
+        const API_URL = 'https://dz-sentivision-api.onrender.com';
         
-        const response = await fetch(`${API_URL}/api/auth/signup`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fullname, email, password })
+        // التعامل مع تقديم النموذج
+        document.getElementById('signupForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            // الحصول على القيم
+            const fullname = document.getElementById('fullname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const terms = document.getElementById('terms').checked;
+            
+            // التحقق من المدخلات
+            if (!fullname || !email || !password) {
+                alert('❌ الرجاء ملء جميع الحقول');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('❌ كلمة المرور غير متطابقة');
+                return;
+            }
+            
+            if (password.length < 8) {
+                alert('❌ كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+                return;
+            }
+            
+            if (!terms) {
+                alert('❌ يجب الموافقة على الشروط والأحكام');
+                return;
+            }
+            
+            // تغيير حالة الزر
+            const button = document.querySelector('.signup-btn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
+            button.disabled = true;
+            
+            try {
+                console.log('محاولة التسجيل:', { fullname, email, password });
+                
+                // إرسال البيانات
+                const response = await fetch(`${API_URL}/api/auth/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        fullname: fullname,
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                console.log('حالة الاستجابة:', response.status);
+                
+                // تحليل الاستجابة
+                let data;
+                try {
+                    data = await response.json();
+                } catch (e) {
+                    console.error('خطأ في تحليل JSON:', e);
+                    throw new Error('استجابة غير صالحة من الخادم');
+                }
+                
+                console.log('بيانات الاستجابة:', data);
+                
+                // التحقق من النجاح
+                if (data && data.success === true) {
+                    alert('✅ تم إنشاء الحساب بنجاح!');
+                    
+                    // حفظ بيانات المستخدم
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    
+                    // التوجيه إلى صفحة التحليل
+                    window.location.href = 'analysis-page.html';
+                } else {
+                    // عرض رسالة الخطأ
+                    const errorMessage = data && data.error ? data.error : 'حدث خطأ غير معروف';
+                    alert('❌ ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('خطأ في الاتصال:', error);
+                alert('❌ خطأ في الاتصال بالخادم: ' + error.message);
+            } finally {
+                // إعادة الزر إلى حالته الطبيعية
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
         });
         
-        console.log('حالة الاستجابة:', response.status);
-        
-        const data = await response.json();
-        console.log('بيانات الاستجابة:', data);
-        
-        if (data.success) {
-            localStorage.setItem('user', JSON.stringify(data.user));
-            return { success: true };
-        } else {
-            return { success: false, message: data.error || 'حدث خطأ' };
+        // التحقق من وجود مستخدم مسجل بالفعل
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            try {
+                const user = JSON.parse(savedUser);
+                if (user && user.id) {
+                    window.location.href = 'analysis-page.html';
+                }
+            } catch (e) {
+                // تجاهل الأخطاء في تحليل JSON
+                localStorage.removeItem('user');
+            }
         }
-    } catch (error) {
-        console.error('خطأ في الاتصال:', error);
-        return { success: false, message: 'فشل الاتصال بالخادم: ' + error.message };
-    }
-}
-
-// دالة التحقق من تسجيل الدخول
-function redirectIfAuthenticated() {
-    const user = localStorage.getItem('user');
-    if (user) {
-        window.location.href = 'analysis-page.html';
-    }
-}
-
-// إلغاء الدالة القديمة
-window.handleSignup = function() {
-    console.log('تم استبدال الدالة القديمة');
-    return false;
-};
-
-// التعامل مع تقديم النموذج
-document.getElementById('signupForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    const fullname = document.getElementById('fullname').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
-    const terms = document.getElementById('terms').checked;
-    
-    // التحقق من المدخلات
-    if (!fullname || !email || !password) {
-        alert('❌ الرجاء ملء جميع الحقول');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        alert('❌ كلمة المرور غير متطابقة');
-        return;
-    }
-    
-    if (password.length < 8) {
-        alert('❌ كلمة المرور يجب أن تكون 8 أحرف على الأقل');
-        return;
-    }
-    
-    if (!terms) {
-        alert('❌ يجب الموافقة على الشروط والأحكام');
-        return;
-    }
-    
-    const signupBtn = document.querySelector('.signup-btn');
-    const originalText = signupBtn.innerHTML;
-    signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
-    signupBtn.disabled = true;
-    
-    const result = await signup(fullname, email, password);
-    
-    if (result.success) {
-        alert('✅ تم إنشاء الحساب بنجاح!');
-        window.location.href = 'analysis-page.html';
-    } else {
-        alert('❌ خطأ: ' + result.message);
-        signupBtn.innerHTML = originalText;
-        signupBtn.disabled = false;
-    }
-});
-
-// التحقق من وجود مستخدم مسجل بالفعل
-redirectIfAuthenticated();
-</script>
+    </script>
+</body>
+</html>
