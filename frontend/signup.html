@@ -321,38 +321,102 @@
     </div>
 
     <script src="js/auth.js"></script>
-<script>
+    <script>
+// رابط الخادم - تأكد من صحته
+const API_URL = 'https://dz-sentivision-api.onrender.com';
+
+// دالة التسجيل
+async function signup(fullname, email, password) {
+    try {
+        console.log('محاولة التسجيل:', { fullname, email, password });
+        
+        const response = await fetch(`${API_URL}/api/auth/signup`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ fullname, email, password })
+        });
+        
+        console.log('حالة الاستجابة:', response.status);
+        
+        const data = await response.json();
+        console.log('بيانات الاستجابة:', data);
+        
+        if (data.success) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+            return { success: true };
+        } else {
+            return { success: false, message: data.error || 'حدث خطأ' };
+        }
+    } catch (error) {
+        console.error('خطأ في الاتصال:', error);
+        return { success: false, message: 'فشل الاتصال بالخادم: ' + error.message };
+    }
+}
+
+// دالة التحقق من تسجيل الدخول
+function redirectIfAuthenticated() {
+    const user = localStorage.getItem('user');
+    if (user) {
+        window.location.href = 'analysis-page.html';
+    }
+}
+
+// إلغاء الدالة القديمة
+window.handleSignup = function() {
+    console.log('تم استبدال الدالة القديمة');
+    return false;
+};
+
+// التعامل مع تقديم النموذج
 document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
-    const fullname = document.getElementById('fullname').value;
-    const email = document.getElementById('email').value;
+    const fullname = document.getElementById('fullname').value.trim();
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const confirmPassword = document.getElementById('confirmPassword').value;
-    const signupBtn = document.querySelector('.signup-btn');
+    const terms = document.getElementById('terms').checked;
     
-    // التحقق من تطابق كلمة المرور
-    if (password !== confirmPassword) {
-        alert('كلمة المرور غير متطابقة');
+    // التحقق من المدخلات
+    if (!fullname || !email || !password) {
+        alert('❌ الرجاء ملء جميع الحقول');
         return;
     }
     
+    if (password !== confirmPassword) {
+        alert('❌ كلمة المرور غير متطابقة');
+        return;
+    }
+    
+    if (password.length < 8) {
+        alert('❌ كلمة المرور يجب أن تكون 8 أحرف على الأقل');
+        return;
+    }
+    
+    if (!terms) {
+        alert('❌ يجب الموافقة على الشروط والأحكام');
+        return;
+    }
+    
+    const signupBtn = document.querySelector('.signup-btn');
+    const originalText = signupBtn.innerHTML;
     signupBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري إنشاء الحساب...';
     signupBtn.disabled = true;
     
     const result = await signup(fullname, email, password);
     
     if (result.success) {
-        alert('تم إنشاء الحساب بنجاح! جاري تحويلك لصفحة التحليل...');
+        alert('✅ تم إنشاء الحساب بنجاح!');
         window.location.href = 'analysis-page.html';
     } else {
-        alert('خطأ: ' + result.message);
-        signupBtn.innerHTML = '<i class="fas fa-user-plus"></i> اشترك الآن';
+        alert('❌ خطأ: ' + result.message);
+        signupBtn.innerHTML = originalText;
         signupBtn.disabled = false;
     }
 });
 
+// التحقق من وجود مستخدم مسجل بالفعل
 redirectIfAuthenticated();
 </script>
-</body>
-</html>
