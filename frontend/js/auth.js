@@ -1,75 +1,87 @@
-// ملف JavaScript الموحد للمصادقة
-const API_URL = 'http://localhost:5000/api/auth';
+// رابط الخادم على الإنترنت (وليس localhost)
+const API_URL = 'https://dz-sentivision-api.onrender.com/api/auth';
 
-// دالة مساعدة للتعامل مع الـ API
+// دالة مساعدة للتواصل مع الخادم
 async function apiRequest(endpoint, method, data) {
     const headers = {
         'Content-Type': 'application/json'
     };
-    
-    // إضافة رمز الدخول إذا كان موجوداً
+
     const token = localStorage.getItem('token');
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
-    const response = await fetch(`${API_URL}${endpoint}`, {
-        method,
-        headers,
-        body: data ? JSON.stringify(data) : undefined
-    });
-    
-    const result = await response.json();
-    
-    if (!response.ok) {
-        throw new Error(result.error || 'حدث خطأ في الاتصال');
+
+    try {
+        const response = await fetch(`${API_URL}${endpoint}`, {
+            method,
+            headers,
+            body: data ? JSON.stringify(data) : undefined
+        });
+        
+        return await response.json();
+    } catch (error) {
+        console.error('خطأ في الاتصال:', error);
+        throw error;
     }
-    
-    return result;
 }
 
 // دالة تسجيل الدخول
 async function login(email, password) {
     try {
-        const result = await apiRequest('/login', 'POST', { email, password });
+        console.log('محاولة تسجيل الدخول:', email);
         
+        const result = await apiRequest('/login', 'POST', { email, password });
+
         if (result.success) {
-            // حفظ بيانات المستخدم
-            localStorage.setItem('token', result.token);
+            localStorage.setItem('token', result.token || 'dummy-token');
             localStorage.setItem('user', JSON.stringify(result.user));
-            
+
             return {
                 success: true,
                 message: 'تم تسجيل الدخول بنجاح'
             };
+        } else {
+            return {
+                success: false,
+                message: result.error || 'فشل تسجيل الدخول'
+            };
         }
     } catch (error) {
+        console.error('خطأ:', error);
         return {
             success: false,
-            message: error.message
+            message: 'فشل الاتصال بالخادم'
         };
     }
 }
 
-// دالة التسجيل
+// دالة تسجيل مستخدم جديد
 async function signup(fullname, email, password) {
     try {
-        const result = await apiRequest('/signup', 'POST', { fullname, email, password });
+        console.log('محاولة تسجيل جديد:', email);
         
+        const result = await apiRequest('/signup', 'POST', { fullname, email, password });
+
         if (result.success) {
-            // حفظ بيانات المستخدم
-            localStorage.setItem('token', result.token);
+            localStorage.setItem('token', result.token || 'dummy-token');
             localStorage.setItem('user', JSON.stringify(result.user));
-            
+
             return {
                 success: true,
                 message: 'تم إنشاء الحساب بنجاح'
             };
+        } else {
+            return {
+                success: false,
+                message: result.error || 'فشل إنشاء الحساب'
+            };
         }
     } catch (error) {
+        console.error('خطأ:', error);
         return {
             success: false,
-            message: error.message
+            message: 'فشل الاتصال بالخادم'
         };
     }
 }
@@ -82,36 +94,7 @@ function logout() {
 }
 
 // التحقق من حالة تسجيل الدخول
-async function checkAuth() {
-    const token = localStorage.getItem('token');
-    
-    if (!token) {
-        return false;
-    }
-    
-    try {
-        const result = await apiRequest('/verify', 'GET');
-        return result.success;
-    } catch (error) {
-        logout();
-        return false;
-    }
-}
-
-// حماية الصفحات (تأكد من تسجيل الدخول)
-async function requireAuth() {
-    const isAuthenticated = await checkAuth();
-    
-    if (!isAuthenticated) {
-        alert('الرجاء تسجيل الدخول أولاً');
-        window.location.href = 'login.html';
-    }
-}
-
-// حماية الصفحات من المستخدمين المسجلين (لصفحات login/signup)
-function redirectIfAuthenticated() {
-    const token = localStorage.getItem('token');
-    if (token) {
-        window.location.href = 'analysis-page.html';
-    }
+function checkAuth() {
+    const user = localStorage.getItem('user');
+    return !!user;
 }
