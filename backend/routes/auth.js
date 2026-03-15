@@ -2,65 +2,60 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 
-// تسجيل الدخول (نسخة مبسطة للتجربة)
+// ✅ تسجيل الدخول (نسخة مبسطة للغاية)
 router.post('/login', async (req, res) => {
     try {
-        console.log('📩 طلب تسجيل دخول:', req.body);
+        console.log('📩 طلب تسجيل دخول:', req.body.email);
         
         const { email, password } = req.body;
         
         // البحث عن المستخدم
         const user = await User.findOne({ email });
         
+        // إذا لم يوجد المستخدم
         if (!user) {
-            console.log('❌ مستخدم غير موجود:', email);
+            console.log('❌ مستخدم غير موجود');
             return res.status(401).json({ 
                 success: false, 
                 error: 'البريد الإلكتروني غير صحيح' 
             });
         }
         
-        // مقارنة بسيطة (بدون تشفير للتجربة)
-        const isPasswordValid = (password === user.password);
-        
-        if (!isPasswordValid) {
-            console.log('❌ كلمة مرور خاطئة للمستخدم:', email);
+        // تحقق بسيط جداً (كلمات المرور نصية للتجربة)
+        if (password !== user.password) {
+            console.log('❌ كلمة مرور خاطئة');
             return res.status(401).json({ 
                 success: false, 
                 error: 'كلمة المرور غير صحيحة' 
             });
         }
         
-        // تحديث آخر تسجيل دخول
-        user.lastLogin = new Date();
-        await user.save();
-        
         console.log('✅ تسجيل دخول ناجح:', email);
         
+        // رد نجاح
         res.json({
             success: true,
             message: 'تم تسجيل الدخول بنجاح',
             user: {
                 id: user._id,
                 fullname: user.fullname,
-                email: user.email,
-                lastLogin: user.lastLogin
+                email: user.email
             }
         });
         
     } catch (error) {
-        console.error('🔥 خطأ في الخادم:', error);
+        console.error('🔥 خطأ جسيم:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'حدث خطأ داخلي في الخادم: ' + error.message 
+            error: 'خطأ في الخادم: ' + error.message 
         });
     }
 });
 
-// تسجيل جديد
+// ✅ تسجيل جديد
 router.post('/signup', async (req, res) => {
     try {
-        console.log('📩 طلب تسجيل جديد:', req.body);
+        console.log('📩 طلب تسجيل جديد:', req.body.email);
         
         const { fullname, email, password } = req.body;
         
@@ -74,11 +69,13 @@ router.post('/signup', async (req, res) => {
         }
         
         // إنشاء مستخدم جديد
-        const user = await User.create({
+        const user = new User({
             fullname,
             email,
-            password  // لاحظ: هذا بدون تشفير للتجربة
+            password // بدون تشفير للتجربة
         });
+        
+        await user.save();
         
         console.log('✅ تم إنشاء مستخدم جديد:', email);
         
@@ -96,7 +93,7 @@ router.post('/signup', async (req, res) => {
         console.error('🔥 خطأ في التسجيل:', error);
         res.status(500).json({ 
             success: false, 
-            error: 'حدث خطأ أثناء إنشاء الحساب' 
+            error: 'حدث خطأ: ' + error.message 
         });
     }
 });
