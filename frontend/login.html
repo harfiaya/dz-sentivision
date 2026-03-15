@@ -290,42 +290,88 @@
         </footer>
     </div>
 
-    <script>
-        // استخدام رابط Render للخادم
-        const API_URL = 'https://dz-sentivision-api.onrender.com';
+<script>
+// رابط الخادم
+const API_URL = 'https://dz-sentivision-api.onrender.com';
+
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // الحصول على القيم
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    
+    // التحقق من المدخلات
+    if (!email || !password) {
+        alert('❌ الرجاء إدخال البريد الإلكتروني وكلمة المرور');
+        return;
+    }
+    
+    // تغيير حالة الزر
+    const btn = document.querySelector('.login-btn');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
+    btn.disabled = true;
+    
+    try {
+        console.log('محاولة تسجيل الدخول:', { email, password: '***' });
         
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            const btn = document.querySelector('.login-btn');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري تسجيل الدخول...';
-            btn.disabled = true;
-            
-            try {
-                const response = await fetch(`${API_URL}/api/auth/login`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ email, password })
-                });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    alert('تم تسجيل الدخول بنجاح!');
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    window.location.href = 'analysis-page.html';
-                } else {
-                    alert('خطأ: ' + (data.error || 'فشل تسجيل الدخول'));
-                }
-            } catch (error) {
-                alert('خطأ في الاتصال بالخادم');
-            } finally {
-                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> دخول';
-                btn.disabled = false;
-            }
+        // إرسال الطلب
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email, password })
         });
-        </script>
+        
+        console.log('حالة الاستجابة:', response.status);
+        
+        // تحقق من أن الاستجابة ناجحة
+        if (!response.ok) {
+            throw new Error(`فشل الطلب: ${response.status}`);
+        }
+        
+        // قراءة البيانات
+        const data = await response.json();
+        console.log('بيانات الاستجابة:', data);
+        
+        // التحقق من النجاح
+        if (data && data.success === true) {
+            alert('✅ تم تسجيل الدخول بنجاح!');
+            
+            // حفظ بيانات المستخدم
+            if (data.user) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+            }
+            
+            // التوجيه إلى صفحة التحليل
+            window.location.href = 'analysis-page.html';
+        } else {
+            // عرض رسالة الخطأ من الخادم
+            const errorMessage = data && data.error ? data.error : 'خطأ غير معروف';
+            alert('❌ ' + errorMessage);
+        }
+    } catch (error) {
+        console.error('خطأ في الاتصال:', error);
+        
+        // رسالة خطأ مخصصة
+        if (error.message.includes('Failed to fetch')) {
+            alert('❌ لا يمكن الاتصال بالخادم. تأكد من تشغيل الخادم على: ' + API_URL);
+        } else {
+            alert('❌ خطأ في الاتصال بالخادم: ' + error.message);
+        }
+    } finally {
+        // إعادة الزر إلى حالته الطبيعية
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+});
+
+// التحقق من وجود مستخدم مسجل بالفعل
+const savedUser = localStorage.getItem('user');
+if (savedUser) {
+    window.location.href = 'analysis-page.html';
+}
+</script>
 </html>
