@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>واجهة التحليل - تحليل المشاعر في الجزائر</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-image: linear-gradient(rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url('nano.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #07264a, #4858b0);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2rem;
+        }
+        
+        .back-btn {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .back-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+            transform: translateX(5px);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .user-info i {
+            font-size: 1.5rem;
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex: 1;
+        }
+        
+        .title {
+            color: #ffffff;
+            text-align: center;
+            font-weight: bolder;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .analysis-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            width: 100%;
+            margin: 20px 0 40px;
+        }
+        
+        .option-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .option-icon {
+            font-size: 3.5rem;
+            color: #2d2d8a;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .option-card h3 {
+            color: #07264a;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .option-card p {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #07264a, #4858b0);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 5px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .upload-btn:hover {
+            background: linear-gradient(135deg, #4858b0, #07264a);
+            transform: scale(1.02);
+        }
+        
+        .upload-btn.secondary {
+            background: linear-gradient(135deg, #666, #888);
+        }
+        
+        .upload-btn.secondary:hover {
+            background: linear-gradient(135deg, #888, #666);
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #4858b0;
+        }
+        
+        .image-preview {
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+        
+        .image-preview img {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .file-name {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #07264a;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            margin: 20px 0;
+            width: 100%;
+        }
+        
+        .loading i {
+            font-size: 3rem;
+            color: #4858b0;
+            margin-bottom: 15px;
+        }
+        
+        .loading p {
+            color: #07264a;
+            font-size: 1.2rem;
+        }
+        
+        .result-section {
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin: 20px 0;
+            width: 100%;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .result-section h3 {
+            color: #07264a;
+            margin-bottom: 25px;
+            font-size: 2rem;
+            text-align: center;
+        }
+        
+        .result-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 12px 30px;
+            border: 2px solid #4858b0;
+            background: white;
+            color: #07264a;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+        
+        .tab-btn.active {
+            background: linear-gradient(135deg, #07264a, #4858b0);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .sentiment-result {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .sentiment-icon {
+            font-size: 5rem;
+        }
+        
+        .positive {
+            color: #00cc66;
+        }
+        
+        .negative {
+            color: #ff3333;
+        }
+        
+        .neutral {
+            color: #ffaa00;
+        }
+        
+        .sentiment-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        
+        .confidence {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+        }
+        
+        .confidence-value {
+            font-weight: bold;
+            color: #4858b0;
+            font-size: 1.5rem;
+        }
+        
+        .analysis-details {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+        
+        .analysis-details h4 {
+            color: #07264a;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #4858b0;
+            padding-bottom: 10px;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .detail-item strong {
+            color: #4858b0;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .json-output {
+            background: #1e1e2f;
+            color: #a6e22e;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, #07264a, #4858b0);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 1200px) {
+            .analysis-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .analysis-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .sentiment-text {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-flag"></i>
+            <h4>تحليل المشاعر في الجزائر</h4>
+        </div>
+        <div class="user-info" id="userInfo">
+            <i class="fas fa-user-circle"></i>
+            <span id="userName">مستخدم</span>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> تسجيل خروج
+            </button>
+        </div>
+        <a href="index.html" class="back-btn">
+            <i class="fas fa-arrow-right"></i> العودة للرئيسية
+        </a>
+    </div>
+    
+    <div class="container">
+        <h2 class="title">واجهة التحليل متعدد الوسائط</h2>
+        <p class="subtitle">اختر طريقة التحليل وقم برفع النص أو الصورة أو كليهما لتحليل المشاعر</p>
+        
+        <div class="analysis-options">
+            <!-- تحليل النص فقط -->
+            <div class="option-card">
+                <div class="option-icon">
+                    <i class="fas fa-file-alt"></i> 
+                </div>
+                <h3>تحليل النص فقط</h3>
+                <p>تحليل المشاعر من النصوص العربية أو الدارجة الجزائرية أو الفرنسية.</p>
+                <textarea id="textInput" placeholder="اكتب النص هنا..." rows="4"></textarea>
+                <button class="upload-btn" onclick="analyzeText()">
+                    <i class="fas fa-search"></i> تحليل النص
+                </button>
+                <button class="upload-btn secondary" onclick="document.getElementById('textFile').click()">
+                    <i class="fas fa-upload"></i> رفع ملف نصي
+                </button>
+                <input type="file" id="textFile" accept=".txt" style="display:none;" onchange="handleTextFile(this)">
+                <div class="file-name" id="textFileName"></div>
+            </div>
+            
+            <!-- تحليل الصورة فقط -->
+            <div class="option-card">
+                <div class="option-icon">
+                    <i class="fas fa-image"></i>
+                </div>
+                <h3>تحليل الصورة فقط</h3>
+                <p>تحليل المشاعر من الصور واستخراج النص منها تلقائياً.</p>
+                <button class="upload-btn" onclick="document.getElementById('imageFile').click()">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع صورة
+                </button>
+                <input type="file" id="imageFile" accept="image/*" style="display:none;" onchange="previewImage(this)">
+                <div class="image-preview" id="imagePreview">
+                    <img id="previewImage" src="#" alt="معاينة الصورة">
+                </div>
+                <div class="file-name" id="imageFileName"></div>
+                <button class="upload-btn" onclick="analyzeImage()" style="margin-top:15px;">
+                    <i class="fas fa-search"></i> تحليل الصورة
+                </button>
+            </div>
+            
+            <!-- تحليل متكامل -->
+            <div class="option-card">
+                <div class="option-icon">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+                <h3>تحليل متكامل</h3>
+                <p>تحليل النص والصورة معًا للحصول على تحليل شامل ودقيق.</p>
+                <textarea id="combinedTextInput" placeholder="أدخل النص هنا..." rows="3"></textarea>
+                <button class="upload-btn" onclick="document.getElementById('combinedImage').click()">
+                    <i class="fas fa-cloud-upload-alt"></i> رفع صورة
+                </button>
+                <input type="file" id="combinedImage" accept="image/*" style="display:none;" onchange="previewCombinedImage(this)">
+                <div class="image-preview" id="combinedImagePreview">
+                    <img id="combinedPreviewImg" src="#" alt="معاينة الصورة">
+                </div>
+                <div class="file-name" id="combinedFileName"></div>
+                <button class="upload-btn" onclick="analyzeCombined()" style="margin-top:15px;">
+                    <i class="fas fa-search"></i> تحليل متكامل
+                </button>
+            </div>
+            
+            <!-- تحليل ملف كامل -->
+            <div class="option-card">
+                <div class="option-icon">
+                    <i class="fas fa-folder-open"></i>
+                </div>
+                <h3>تحليل ملف كامل</h3>
+                <p>رفع مجلد أو ملف ضخم يحتوي على بيانات متعددة للتحليل الشامل.</p>
+                <button class="upload-btn" onclick="document.getElementById('folderInput').click()">
+                    <i class="fas fa-folder-open"></i> رفع مجلد
+                </button>
+                <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;" onchange="handleFolderUpload(this)">
+                <div class="file-name" id="folderName"></div>
+                <button class="upload-btn" onclick="analyzeFolder()" style="margin-top:15px;">
+                    <i class="fas fa-search"></i> تحليل المجلد
+                </button>
+            </div>
+        </div>
+        
+        <!-- مؤشر التحميل -->
+        <div class="loading" id="loadingIndicator">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>جاري تحليل المحتوى...</p>
+        </div>
+        
+        <!-- قسم النتائج -->
+        <div class="result-section" id="resultSection">
+            <h3>نتيجة تحليل المشاعر</h3>
+            
+            <div class="result-tabs">
+                <button class="tab-btn active" onclick="showTab('summary')">ملخص النتائج</button>
+                <button class="tab-btn" onclick="showTab('details')">تفاصيل التحليل</button>
+                <button class="tab-btn" onclick="showTab('json')">البيانات الخام</button>
+            </div>
+            
+            <div class="tab-content active" id="summaryTab">
+                <div class="sentiment-result">
+                    <div class="sentiment-icon" id="sentimentIcon">
+                        <i class="fas fa-smile positive"></i>
+                    </div>
+                    <div class="sentiment-text" id="sentimentText">إيجابي</div>
+                </div>
+                <div class="confidence">
+                    <p>مستوى الثقة في التحليل: <span class="confidence-value" id="confidenceValue">87%</span></p>
+                </div>
+                <div class="analysis-details">
+                    <h4>ملخص التحليل:</h4>
+                    <p id="analysisSummary">المحتوى يحمل مشاعر إيجابية قوية مع تعبيرات سعادة ورضا.</p>
+                    <div class="details-grid" style="margin-top:20px;">
+                        <div class="detail-item">
+                            <strong>نوع التحليل</strong>
+                            <span id="analysisType">تحليل نصي</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>اللغة المكتشفة</strong>
+                            <span id="detectedLanguage">العربية</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>عدد الكلمات</strong>
+                            <span id="wordCount">24</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="detailsTab">
+                <div class="analysis-details">
+                    <h4>تفاصيل التحليل التفصيلية:</h4>
+                    <div class="details-grid" id="detailedAnalysis">
+                        <div class="detail-item">
+                            <strong>المشاعر الرئيسية</strong>
+                            <span>سعادة، رضا</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>الكلمات الرئيسية</strong>
+                            <span>نجاح، تميز، إنجاز</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>نبرة النص</strong>
+                            <span>متفائلة وإيجابية</span>
+                        </div>
+                        <div class="detail-item">
+                            <strong>التعقيد العاطفي</strong>
+                            <span>متوسط</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="jsonTab">
+                <div class="analysis-details">
+                    <h4>البيانات الخام (JSON):</h4>
+                    <div class="json-output" id="jsonOutput">
+{
+    "analysis_type": "text",
+    "sentiment": "positive",
+    "confidence": 0.87,
+    "language": "arabic",
+    "word_count": 24,
+    "timestamp": "2024-01-15T10:30:00Z"
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2024 | DZ-SentiVision - نظام تحليل المشاعر الجزائري متعدد الوسائط</p>
+    </footer>
+
+    <script>
+        // التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function() {
+            const userData = localStorage.getItem('user');
+            
+            if (!userData) {
+                alert('الرجاء تسجيل الدخول أولاً');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userData);
+                document.getElementById('userName').textContent = user.fullname || 'مستخدم';
+            } catch (error) {
+                console.error('خطأ في قراءة بيانات المستخدم:', error);
+            }
+        });
+
+        // دالة تسجيل الخروج
+        function logout() {
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        // متغيرات لحفظ الملفات المرفوعة
+        let currentTextFile = null;
+        let currentImageFile = null;
+        let currentCombinedImage = null;
+        let currentFolderFiles = [];
+
+        // دوال معالجة الملفات
+        function handleTextFile(input) {
+            const file = input.files[0];
+            if (file) {
+                currentTextFile = file;
+                document.getElementById('textFileName').textContent = `📄 ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('textInput').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function previewImage(input) {
+            const file = input.files[0];
+            if (file) {
+                currentImageFile = file;
+                document.getElementById('imageFileName').textContent = `📸 ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('imagePreview');
+                    const img = document.getElementById('previewImage');
+                    img.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewCombinedImage(input) {
+            const file = input.files[0];
+            if (file) {
+                currentCombinedImage = file;
+                document.getElementById('combinedFileName').textContent = `📸 ${file.name}`;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('combinedImagePreview');
+                    const img = document.getElementById('combinedPreviewImg');
+                    img.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleFolderUpload(input) {
+            const files = Array.from(input.files);
+            if (files.length > 0) {
+                currentFolderFiles = files;
+                document.getElementById('folderName').textContent = `📁 ${files.length} ملف`;
+            }
+        }
+
+        // دوال التحليل
+        function analyzeText() {
+            const text = document.getElementById('textInput').value.trim();
+            
+            if (!text) {
+                alert('الرجاء إدخال نص للتحليل');
+                return;
+            }
+
+            showLoading();
+            
+            // محاكاة عملية التحليل
+            setTimeout(() => {
+                hideLoading();
+                showResults();
+                
+                // تحديث النتائج بناءً على النص
+                updateResultsForText(text);
+            }, 2000);
+        }
+
+        function analyzeImage() {
+            if (!currentImageFile) {
+                alert('الرجاء رفع صورة للتحليل');
+                return;
+            }
+
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                showResults();
+                
+                // تحديث النتائج لتحليل الصورة
+                document.getElementById('analysisType').textContent = 'تحليل صورة';
+                document.getElementById('analysisSummary').textContent = 'تم تحليل الصورة بنجاح. تحتوي الصورة على تعابير وجه إيجابية ونص مستخلص يحمل مشاعر إيجابية.';
+                document.getElementById('jsonOutput').textContent = JSON.stringify({
+                    analysis_type: 'image',
+                    sentiment: 'positive',
+                    confidence: 0.92,
+                    extracted_text: 'نص مستخلص من الصورة',
+                    faces_detected: 2,
+                    dominant_emotion: 'happy'
+                }, null, 4);
+            }, 2000);
+        }
+
+        function analyzeCombined() {
+            const text = document.getElementById('combinedTextInput').value.trim();
+            
+            if (!text && !currentCombinedImage) {
+                alert('الرجاء إدخال نص أو رفع صورة للتحليل المتكامل');
+                return;
+            }
+
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                showResults();
+                
+                document.getElementById('analysisType').textContent = 'تحليل متكامل (نص + صورة)';
+                document.getElementById('analysisSummary').textContent = 'تم تحليل النص والصورة معًا. النتائج متطابقة وتحمل مشاعر إيجابية قوية.';
+                document.getElementById('jsonOutput').textContent = JSON.stringify({
+                    analysis_type: 'combined',
+                    sentiment: 'positive',
+                    confidence: 0.89,
+                    text_analysis: {
+                        sentiment: 'positive',
+                        confidence: 0.87
+                    },
+                    image_analysis: {
+                        sentiment: 'positive',
+                        confidence: 0.91,
+                        extracted_text: 'نص من الصورة'
+                    }
+                }, null, 4);
+            }, 2500);
+        }
+
+        function analyzeFolder() {
+            if (currentFolderFiles.length === 0) {
+                alert('الرجاء رفع مجلد للتحليل');
+                return;
+            }
+
+            showLoading();
+            
+            setTimeout(() => {
+                hideLoading();
+                showResults();
+                
+                document.getElementById('analysisType').textContent = 'تحليل ملف كامل';
+                document.getElementById('wordCount').textContent = currentFolderFiles.length;
+                document.getElementById('analysisSummary').textContent = `تم تحليل ${currentFolderFiles.length} ملف بنجاح. غالبية المحتوى يحمل مشاعر إيجابية.`;
+                document.getElementById('jsonOutput').textContent = JSON.stringify({
+                    analysis_type: 'folder',
+                    files_analyzed: currentFolderFiles.length,
+                    overall_sentiment: 'positive',
+                    positive_percentage: 75,
+                    negative_percentage: 15,
+                    neutral_percentage: 10,
+                    details: 'تحليل إحصائي للملفات المرفوعة'
+                }, null, 4);
+            }, 3000);
+        }
+
+        function updateResultsForText(text) {
+            // تحليل بسيط للنص لتحديد المشاعر
+            const positiveWords = ['سعيد', 'فرح', 'ممتاز', 'جميل', 'رائع', 'حلو', 'باهي', 'مليح', 'ناجح', 'حاب'];
+            const negativeWords = ['حزين', 'زعلان', 'سيء', 'خايب', 'مليحش', 'مش مليح', 'كره', 'بغض', 'تعاسة'];
+            
+            let score = 0;
+            const words = text.split(/\s+/);
+            
+            words.forEach(word => {
+                if (positiveWords.some(pw => word.includes(pw))) score += 1;
+                if (negativeWords.some(nw => word.includes(nw))) score -= 1;
+            });
+            
+            let sentiment = score > 0 ? 'إيجابي' : (score < 0 ? 'سلبي' : 'محايد');
+            let icon = score > 0 ? 'fa-smile positive' : (score < 0 ? 'fa-frown negative' : 'fa-meh neutral');
+            let confidence = Math.min(95, Math.abs(score) * 20 + 70);
+            
+            document.getElementById('sentimentIcon').innerHTML = `<i class="fas ${icon}"></i>`;
+            document.getElementById('sentimentText').textContent = sentiment;
+            document.getElementById('confidenceValue').textContent = confidence + '%';
+            document.getElementById('analysisType').textContent = 'تحليل نصي';
+            document.getElementById('wordCount').textContent = words.length;
+            
+            // كشف اللغة
+            const hasFrench = /[éèêëàâîôûùçœ]/i.test(text);
+            const hasArabic = /[ابتثجحخدذرزسشصضطظعغفقكلمنهويءآأؤإئ]/g.test(text);
+            let language = hasFrench && hasArabic ? 'عربية - فرنسية' : (hasArabic ? 'العربية' : (hasFrench ? 'الفرنسية' : 'غير معروفة'));
+            document.getElementById('detectedLanguage').textContent = language;
+            
+            document.getElementById('analysisSummary').textContent = `النص يحمل مشاعر ${sentiment} مع مستوى ثقة ${confidence}%.`;
+        }
+
+        function showLoading() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('resultSection').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingIndicator').style.display = 'none';
+        }
+
+        function showResults() {
+            document.getElementById('resultSection').style.display = 'block';
+        }
+
+        function showTab(tabName) {
+            // إخفاء كل التبويبات
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // إزالة active من كل الأزرار
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // إظهار التبويب المحدد
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // تفعيل الزر المناسب
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
