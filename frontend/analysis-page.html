@@ -499,7 +499,7 @@
     </footer>
 
     <script>
-        // رابط API الخاص بك على Render (عدله حسب رابطك)
+        // رابط API الخاص بك على Render
         const API_URL = "https://sentiment-apii-hng5.onrender.com/predict";
         
         // التحقق من تسجيل الدخول
@@ -533,7 +533,7 @@
         let currentCombinedImage = null;
         let currentFolderFiles = [];
 
-        // دوال معالجة الملفات (نفسها كما كانت)
+        // دوال معالجة الملفات
         function handleTextFile(input) {
             const file = input.files[0];
             if (file) {
@@ -592,7 +592,6 @@
 
         // دالة عرض النتيجة من API
         function displayResult(sentiment, confidence) {
-            const resultDiv = document.getElementById('resultSection');
             const sentimentText = document.getElementById('sentimentText');
             const sentimentIcon = document.getElementById('sentimentIcon');
             const confidenceSpan = document.getElementById('confidenceValue');
@@ -616,27 +615,35 @@
                 confidenceSpan.style.color = '#ffaa00';
             }
             
-            // عرض نسبة الثقة (إذا كانت موجودة)
+            // عرض نسبة الثقة
             if (confidence) {
                 confidenceSpan.textContent = Math.round(confidence * 100) + '%';
             } else {
                 confidenceSpan.textContent = '---';
             }
             
-            resultDiv.style.display = 'block';
+            document.getElementById('resultSection').style.display = 'block';
         }
         
         // دالة عرض الخطأ
         function displayError(message) {
-            const resultDiv = document.getElementById('resultSection');
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
-            resultDiv.style.display = 'block';
+            document.getElementById('resultSection').style.display = 'block';
         }
 
-        // دالة الاتصال بـ API
-        async function callSentimentAPI(text) {
+        // دالة تحليل النص (الاتصال بـ API)
+        async function analyzeText() {
+            const text = document.getElementById('textInput').value.trim();
+            
+            if (!text) {
+                alert('الرجاء إدخال نص للتحليل');
+                return;
+            }
+
+            showLoading();
+            
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
@@ -647,108 +654,62 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`خطأ في الخادم: ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`خطأ في الخادم (${response.status})`);
                 }
                 
-                const data = await response.json();
-                return data;
+                const result = await response.json();
+                hideLoading();
+                
+                if (result.sentiment) {
+                    displayResult(result.sentiment, result.confidence);
+                } else if (result.error) {
+                    displayError(result.error);
+                } else {
+                    displayError('تنسيق رد غير متوقع من الخادم');
+                }
+                
             } catch (error) {
-                console.error('خطأ في الاتصال:', error);
-                throw error;
+                console.error('خطأ:', error);
+                hideLoading();
+                displayError('حدث خطأ في الاتصال بخادم التحليل');
             }
         }
 
-        // دوال التحليل (معدلة لاستخدام API الحقيقي)
-        // تأكد من أن هذا هو الرابط الصحيح لـ API الخاص بك
-const API_URL = "https://sentiment-apii-hng5.onrender.com/predict";
-
-async function analyzeText() {
-    const text = document.getElementById('textInput').value.trim();
-    
-    if (!text) {
-        alert('الرجاء إدخال نص للتحليل');
-        return;
-    }
-
-    showLoading();
-    
-    try {
-        // استخدام Fetch API مع تحديد METHOD POST بشكل صريح
-        const response = await fetch(API_URL, {
-            method: 'POST', // <-- هذا هو السطر الأهم
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: text })
-        });
-        
-        // إذا كان الرد من الخادم غير ناجح (مثل 405)
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`خطأ في الخادم (${response.status}): ${errorText}`);
-        }
-        
-        const result = await response.json();
-        hideLoading();
-        
-        // استخراج النتيجة وعرضها
-        if (result.sentiment) {
-            displayResult(result.sentiment, result.confidence);
-        } else if (result.error) {
-            displayError(result.error);
-        } else {
-            displayError('تنسيق رد غير متوقع من الخادم');
-        }
-        
-    } catch (error) {
-        console.error('خطأ في الاتصال:', error);
-        hideLoading();
-        displayError('حدث خطأ في الاتصال بخادم التحليل: ' + error.message);
-    }
-}
-
-
-
-        
-        // باقي دوال التحليل (للصورة والمتكامل والمجلد) تبقى كما هي مع محاكاة
+        // تحليل الصورة (محاكاة حالياً)
         function analyzeImage() {
             if (!currentImageFile) {
                 alert('الرجاء رفع صورة للتحليل');
                 return;
             }
-
             showLoading();
-            
             setTimeout(() => {
                 hideLoading();
                 displayResult('positive', 0.92);
             }, 2000);
         }
 
+        // تحليل متكامل (محاكاة)
         function analyzeCombined() {
             const text = document.getElementById('combinedTextInput').value.trim();
-            
             if (!text && !currentCombinedImage) {
-                alert('الرجاء إدخال نص أو رفع صورة للتحليل المتكامل');
+                alert('الرجاء إدخال نص أو رفع صورة');
                 return;
             }
-
             showLoading();
-            
             setTimeout(() => {
                 hideLoading();
                 displayResult('positive', 0.89);
             }, 2500);
         }
 
+        // تحليل مجلد (محاكاة)
         function analyzeFolder() {
             if (currentFolderFiles.length === 0) {
                 alert('الرجاء رفع مجلد للتحليل');
                 return;
             }
-
             showLoading();
-            
             setTimeout(() => {
                 hideLoading();
                 displayResult('positive', 0.75);
