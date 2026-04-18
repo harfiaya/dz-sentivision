@@ -659,31 +659,57 @@
         }
 
         // دوال التحليل (معدلة لاستخدام API الحقيقي)
-        async function analyzeText() {
-            const text = document.getElementById('textInput').value.trim();
-            
-            if (!text) {
-                alert('الرجاء إدخال نص للتحليل');
-                return;
-            }
+        // تأكد من أن هذا هو الرابط الصحيح لـ API الخاص بك
+const API_URL = "https://sentiment-apii-hng5.onrender.com/predict";
 
-            showLoading();
-            
-            try {
-                const result = await callSentimentAPI(text);
-                hideLoading();
-                
-                // استخراج المشاعر من النتيجة (حسب شكل الرد من API)
-                let sentiment = result.sentiment || result.label || 'محايد';
-                let confidence = result.confidence || result.score || null;
-                
-                displayResult(sentiment, confidence);
-            } catch (error) {
-                hideLoading();
-                displayError('حدث خطأ في الاتصال بخادم التحليل. الرجاء المحاولة لاحقاً.');
-            }
+async function analyzeText() {
+    const text = document.getElementById('textInput').value.trim();
+    
+    if (!text) {
+        alert('الرجاء إدخال نص للتحليل');
+        return;
+    }
+
+    showLoading();
+    
+    try {
+        // استخدام Fetch API مع تحديد METHOD POST بشكل صريح
+        const response = await fetch(API_URL, {
+            method: 'POST', // <-- هذا هو السطر الأهم
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: text })
+        });
+        
+        // إذا كان الرد من الخادم غير ناجح (مثل 405)
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`خطأ في الخادم (${response.status}): ${errorText}`);
         }
+        
+        const result = await response.json();
+        hideLoading();
+        
+        // استخراج النتيجة وعرضها
+        if (result.sentiment) {
+            displayResult(result.sentiment, result.confidence);
+        } else if (result.error) {
+            displayError(result.error);
+        } else {
+            displayError('تنسيق رد غير متوقع من الخادم');
+        }
+        
+    } catch (error) {
+        console.error('خطأ في الاتصال:', error);
+        hideLoading();
+        displayError('حدث خطأ في الاتصال بخادم التحليل: ' + error.message);
+    }
+}
 
+
+
+        
         // باقي دوال التحليل (للصورة والمتكامل والمجلد) تبقى كما هي مع محاكاة
         function analyzeImage() {
             if (!currentImageFile) {
