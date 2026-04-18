@@ -275,47 +275,7 @@
             width: 100%;
             display: none;
             backdrop-filter: blur(10px);
-        }
-        
-        .result-section h3 {
-            color: #07264a;
-            margin-bottom: 25px;
-            font-size: 2rem;
             text-align: center;
-        }
-        
-        .result-tabs {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .tab-btn {
-            padding: 12px 30px;
-            border: 2px solid #4858b0;
-            background: white;
-            color: #07264a;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 1rem;
-            font-weight: bold;
-        }
-        
-        .tab-btn.active {
-            background: linear-gradient(135deg, #07264a, #4858b0);
-            color: white;
-            border-color: transparent;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
         }
         
         .sentiment-result {
@@ -363,52 +323,13 @@
             font-size: 1.5rem;
         }
         
-        .analysis-details {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-        }
-        
-        .analysis-details h4 {
-            color: #07264a;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-            border-bottom: 2px solid #4858b0;
-            padding-bottom: 10px;
-        }
-        
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .detail-item {
-            background: white;
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
             padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .detail-item strong {
-            color: #4858b0;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .json-output {
-            background: #1e1e2f;
-            color: #a6e22e;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            max-height: 400px;
-            overflow-y: auto;
-            direction: ltr;
-            text-align: left;
+            margin-top: 20px;
+            font-weight: bold;
         }
         
         footer {
@@ -558,85 +479,18 @@
             <p>جاري تحليل المحتوى...</p>
         </div>
         
-        <!-- قسم النتائج -->
+        <!-- قسم النتائج (مبسط: فقط المشاعر + النسبة) -->
         <div class="result-section" id="resultSection">
-            <h3>نتيجة تحليل المشاعر</h3>
-            
-            <div class="result-tabs">
-                <button class="tab-btn active" onclick="showTab('summary')">ملخص النتائج</button>
-                <button class="tab-btn" onclick="showTab('details')">تفاصيل التحليل</button>
-                <button class="tab-btn" onclick="showTab('json')">البيانات الخام</button>
+            <div class="sentiment-result">
+                <div class="sentiment-icon" id="sentimentIcon">
+                    <i class="fas fa-smile positive"></i>
+                </div>
+                <div class="sentiment-text" id="sentimentText">إيجابي</div>
             </div>
-            
-            <div class="tab-content active" id="summaryTab">
-                <div class="sentiment-result">
-                    <div class="sentiment-icon" id="sentimentIcon">
-                        <i class="fas fa-smile positive"></i>
-                    </div>
-                    <div class="sentiment-text" id="sentimentText">إيجابي</div>
-                </div>
-                <div class="confidence">
-                    <p>مستوى الثقة في التحليل: <span class="confidence-value" id="confidenceValue">87%</span></p>
-                </div>
-                <div class="analysis-details">
-                    <h4>ملخص التحليل:</h4>
-                    <p id="analysisSummary">المحتوى يحمل مشاعر إيجابية قوية مع تعبيرات سعادة ورضا.</p>
-                    <div class="details-grid" style="margin-top:20px;">
-                        <div class="detail-item">
-                            <strong>نوع التحليل</strong>
-                            <span id="analysisType">تحليل نصي</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>اللغة المكتشفة</strong>
-                            <span id="detectedLanguage">العربية</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>عدد الكلمات</strong>
-                            <span id="wordCount">24</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="confidence">
+                <p>نسبة الثقة: <span class="confidence-value" id="confidenceValue">87%</span></p>
             </div>
-            
-            <div class="tab-content" id="detailsTab">
-                <div class="analysis-details">
-                    <h4>تفاصيل التحليل التفصيلية:</h4>
-                    <div class="details-grid" id="detailedAnalysis">
-                        <div class="detail-item">
-                            <strong>المشاعر الرئيسية</strong>
-                            <span>سعادة، رضا</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>الكلمات الرئيسية</strong>
-                            <span>نجاح، تميز، إنجاز</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>نبرة النص</strong>
-                            <span>متفائلة وإيجابية</span>
-                        </div>
-                        <div class="detail-item">
-                            <strong>التعقيد العاطفي</strong>
-                            <span>متوسط</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="tab-content" id="jsonTab">
-                <div class="analysis-details">
-                    <h4>البيانات الخام (JSON):</h4>
-                    <div class="json-output" id="jsonOutput">
-{
-    "analysis_type": "text",
-    "sentiment": "positive",
-    "confidence": 0.87,
-    "language": "arabic",
-    "word_count": 24,
-    "timestamp": "2024-01-15T10:30:00Z"
-}
-                    </div>
-                </div>
-            </div>
+            <div id="errorMessage" style="display:none;" class="error-message"></div>
         </div>
     </div>
     
@@ -645,6 +499,9 @@
     </footer>
 
     <script>
+        // رابط API الخاص بك على Render (عدله حسب رابطك)
+        const API_URL = "https://sentiment-apii-hng5.onrender.com/predict";
+        
         // التحقق من تسجيل الدخول
         document.addEventListener('DOMContentLoaded', function() {
             const userData = localStorage.getItem('user');
@@ -676,7 +533,7 @@
         let currentCombinedImage = null;
         let currentFolderFiles = [];
 
-        // دوال معالجة الملفات
+        // دوال معالجة الملفات (نفسها كما كانت)
         function handleTextFile(input) {
             const file = input.files[0];
             if (file) {
@@ -733,8 +590,76 @@
             }
         }
 
-        // دوال التحليل
-        function analyzeText() {
+        // دالة عرض النتيجة من API
+        function displayResult(sentiment, confidence) {
+            const resultDiv = document.getElementById('resultSection');
+            const sentimentText = document.getElementById('sentimentText');
+            const sentimentIcon = document.getElementById('sentimentIcon');
+            const confidenceSpan = document.getElementById('confidenceValue');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // إخفاء أي خطأ سابق
+            errorDiv.style.display = 'none';
+            
+            // تعيين النص واللون والأيقونة حسب المشاعر
+            if (sentiment === 'positive' || sentiment === 'إيجابي' || sentiment === 'POSITIVE') {
+                sentimentText.textContent = 'إيجابي';
+                sentimentIcon.innerHTML = '<i class="fas fa-smile positive"></i>';
+                confidenceSpan.style.color = '#00cc66';
+            } else if (sentiment === 'negative' || sentiment === 'سلبي' || sentiment === 'NEGATIVE') {
+                sentimentText.textContent = 'سلبي';
+                sentimentIcon.innerHTML = '<i class="fas fa-frown negative"></i>';
+                confidenceSpan.style.color = '#ff3333';
+            } else {
+                sentimentText.textContent = 'محايد';
+                sentimentIcon.innerHTML = '<i class="fas fa-meh neutral"></i>';
+                confidenceSpan.style.color = '#ffaa00';
+            }
+            
+            // عرض نسبة الثقة (إذا كانت موجودة)
+            if (confidence) {
+                confidenceSpan.textContent = Math.round(confidence * 100) + '%';
+            } else {
+                confidenceSpan.textContent = '---';
+            }
+            
+            resultDiv.style.display = 'block';
+        }
+        
+        // دالة عرض الخطأ
+        function displayError(message) {
+            const resultDiv = document.getElementById('resultSection');
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            resultDiv.style.display = 'block';
+        }
+
+        // دالة الاتصال بـ API
+        async function callSentimentAPI(text) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`خطأ في الخادم: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('خطأ في الاتصال:', error);
+                throw error;
+            }
+        }
+
+        // دوال التحليل (معدلة لاستخدام API الحقيقي)
+        async function analyzeText() {
             const text = document.getElementById('textInput').value.trim();
             
             if (!text) {
@@ -744,16 +669,22 @@
 
             showLoading();
             
-            // محاكاة عملية التحليل
-            setTimeout(() => {
+            try {
+                const result = await callSentimentAPI(text);
                 hideLoading();
-                showResults();
                 
-                // تحديث النتائج بناءً على النص
-                updateResultsForText(text);
-            }, 2000);
+                // استخراج المشاعر من النتيجة (حسب شكل الرد من API)
+                let sentiment = result.sentiment || result.label || 'محايد';
+                let confidence = result.confidence || result.score || null;
+                
+                displayResult(sentiment, confidence);
+            } catch (error) {
+                hideLoading();
+                displayError('حدث خطأ في الاتصال بخادم التحليل. الرجاء المحاولة لاحقاً.');
+            }
         }
 
+        // باقي دوال التحليل (للصورة والمتكامل والمجلد) تبقى كما هي مع محاكاة
         function analyzeImage() {
             if (!currentImageFile) {
                 alert('الرجاء رفع صورة للتحليل');
@@ -764,19 +695,7 @@
             
             setTimeout(() => {
                 hideLoading();
-                showResults();
-                
-                // تحديث النتائج لتحليل الصورة
-                document.getElementById('analysisType').textContent = 'تحليل صورة';
-                document.getElementById('analysisSummary').textContent = 'تم تحليل الصورة بنجاح. تحتوي الصورة على تعابير وجه إيجابية ونص مستخلص يحمل مشاعر إيجابية.';
-                document.getElementById('jsonOutput').textContent = JSON.stringify({
-                    analysis_type: 'image',
-                    sentiment: 'positive',
-                    confidence: 0.92,
-                    extracted_text: 'نص مستخلص من الصورة',
-                    faces_detected: 2,
-                    dominant_emotion: 'happy'
-                }, null, 4);
+                displayResult('positive', 0.92);
             }, 2000);
         }
 
@@ -792,24 +711,7 @@
             
             setTimeout(() => {
                 hideLoading();
-                showResults();
-                
-                document.getElementById('analysisType').textContent = 'تحليل متكامل (نص + صورة)';
-                document.getElementById('analysisSummary').textContent = 'تم تحليل النص والصورة معًا. النتائج متطابقة وتحمل مشاعر إيجابية قوية.';
-                document.getElementById('jsonOutput').textContent = JSON.stringify({
-                    analysis_type: 'combined',
-                    sentiment: 'positive',
-                    confidence: 0.89,
-                    text_analysis: {
-                        sentiment: 'positive',
-                        confidence: 0.87
-                    },
-                    image_analysis: {
-                        sentiment: 'positive',
-                        confidence: 0.91,
-                        extracted_text: 'نص من الصورة'
-                    }
-                }, null, 4);
+                displayResult('positive', 0.89);
             }, 2500);
         }
 
@@ -823,53 +725,8 @@
             
             setTimeout(() => {
                 hideLoading();
-                showResults();
-                
-                document.getElementById('analysisType').textContent = 'تحليل ملف كامل';
-                document.getElementById('wordCount').textContent = currentFolderFiles.length;
-                document.getElementById('analysisSummary').textContent = `تم تحليل ${currentFolderFiles.length} ملف بنجاح. غالبية المحتوى يحمل مشاعر إيجابية.`;
-                document.getElementById('jsonOutput').textContent = JSON.stringify({
-                    analysis_type: 'folder',
-                    files_analyzed: currentFolderFiles.length,
-                    overall_sentiment: 'positive',
-                    positive_percentage: 75,
-                    negative_percentage: 15,
-                    neutral_percentage: 10,
-                    details: 'تحليل إحصائي للملفات المرفوعة'
-                }, null, 4);
+                displayResult('positive', 0.75);
             }, 3000);
-        }
-
-        function updateResultsForText(text) {
-            // تحليل بسيط للنص لتحديد المشاعر
-            const positiveWords = ['سعيد', 'فرح', 'ممتاز', 'جميل', 'رائع', 'حلو', 'باهي', 'مليح', 'ناجح', 'حاب'];
-            const negativeWords = ['حزين', 'زعلان', 'سيء', 'خايب', 'مليحش', 'مش مليح', 'كره', 'بغض', 'تعاسة'];
-            
-            let score = 0;
-            const words = text.split(/\s+/);
-            
-            words.forEach(word => {
-                if (positiveWords.some(pw => word.includes(pw))) score += 1;
-                if (negativeWords.some(nw => word.includes(nw))) score -= 1;
-            });
-            
-            let sentiment = score > 0 ? 'إيجابي' : (score < 0 ? 'سلبي' : 'محايد');
-            let icon = score > 0 ? 'fa-smile positive' : (score < 0 ? 'fa-frown negative' : 'fa-meh neutral');
-            let confidence = Math.min(95, Math.abs(score) * 20 + 70);
-            
-            document.getElementById('sentimentIcon').innerHTML = `<i class="fas ${icon}"></i>`;
-            document.getElementById('sentimentText').textContent = sentiment;
-            document.getElementById('confidenceValue').textContent = confidence + '%';
-            document.getElementById('analysisType').textContent = 'تحليل نصي';
-            document.getElementById('wordCount').textContent = words.length;
-            
-            // كشف اللغة
-            const hasFrench = /[éèêëàâîôûùçœ]/i.test(text);
-            const hasArabic = /[ابتثجحخدذرزسشصضطظعغفقكلمنهويءآأؤإئ]/g.test(text);
-            let language = hasFrench && hasArabic ? 'عربية - فرنسية' : (hasArabic ? 'العربية' : (hasFrench ? 'الفرنسية' : 'غير معروفة'));
-            document.getElementById('detectedLanguage').textContent = language;
-            
-            document.getElementById('analysisSummary').textContent = `النص يحمل مشاعر ${sentiment} مع مستوى ثقة ${confidence}%.`;
         }
 
         function showLoading() {
@@ -879,28 +736,6 @@
 
         function hideLoading() {
             document.getElementById('loadingIndicator').style.display = 'none';
-        }
-
-        function showResults() {
-            document.getElementById('resultSection').style.display = 'block';
-        }
-
-        function showTab(tabName) {
-            // إخفاء كل التبويبات
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // إزالة active من كل الأزرار
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // إظهار التبويب المحدد
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            // تفعيل الزر المناسب
-            event.target.classList.add('active');
         }
     </script>
 </body>
