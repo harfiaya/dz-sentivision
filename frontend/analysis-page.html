@@ -677,19 +677,89 @@
             }
         }
 
-        // تحليل الصورة (محاكاة حالياً)
-        function analyzeImage() {
-            if (!currentImageFile) {
-                alert('الرجاء رفع صورة للتحليل');
-                return;
+        // تحليل الصورة 
+        async function analyzeImage() {
+    if (!currentImageFile) {
+        alert('الرجاء رفع صورة للتحليل');
+        return;
+    }
+    showLoading();
+    
+    // تحويل الصورة إلى base64
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const base64 = e.target.result.split(',')[1];
+        
+        try {
+            const response = await fetch('https://harfi3003-sentiment-api.hf.space/predict_image', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: base64 })
+            });
+            
+            const result = await response.json();
+            hideLoading();
+            
+            if (result.sentiment) {
+                displayResult(result.sentiment, result.confidence);
+            } else {
+                displayError(result.error || 'خطأ في التحليل');
             }
-            showLoading();
-            setTimeout(() => {
-                hideLoading();
-                displayResult('positive', 0.92);
-            }, 2000);
+        } catch (error) {
+            hideLoading();
+            displayError('حدث خطأ في الاتصال');
         }
+    };
+    reader.readAsDataURL(currentImageFile);
+}
 
+async function analyzeCombined() {
+    const text = document.getElementById('combinedTextInput').value.trim();
+    if (!text && !currentCombinedImage) {
+        alert('الرجاء إدخال نص أو رفع صورة');
+        return;
+    }
+    showLoading();
+
+    let base64 = '';
+    
+    const sendRequest = async () => {
+        try {
+            const response = await fetch('https://harfi3003-sentiment-api.hf.space/predict_combined', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text, image: base64 })
+            });
+            
+            const result = await response.json();
+            hideLoading();
+            
+            if (result.combined) {
+                displayResult(result.combined.sentiment, result.combined.confidence);
+            } else {
+                displayError('خطأ في التحليل');
+            }
+        } catch (error) {
+            hideLoading();
+            displayError('حدث خطأ في الاتصال');
+        }
+    };
+
+    if (currentCombinedImage) {
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            base64 = e.target.result.split(',')[1];
+            await sendRequest();
+        };
+        reader.readAsDataURL(currentCombinedImage);
+    } else {
+        await sendRequest();
+    }
+}
+
+
+
+        
         // تحليل متكامل (محاكاة)
         function analyzeCombined() {
             const text = document.getElementById('combinedTextInput').value.trim();
