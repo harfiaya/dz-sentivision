@@ -760,20 +760,7 @@ async function analyzeCombined() {
 
 
         
-        // تحليل متكامل (محاكاة)
-        function analyzeCombined() {
-            const text = document.getElementById('combinedTextInput').value.trim();
-            if (!text && !currentCombinedImage) {
-                alert('الرجاء إدخال نص أو رفع صورة');
-                return;
-            }
-            showLoading();
-            setTimeout(() => {
-                hideLoading();
-                displayResult('positive', 0.89);
-            }, 2500);
-        }
-
+       
         // تحليل مجلد (محاكاة)
         function analyzeFolder() {
             if (currentFolderFiles.length === 0) {
