@@ -998,7 +998,7 @@
             }
             
             window.myChart = new Chart(ctx, {
-                type: 'bar',    // ← هنا: 'pie' (دائري) أو 'bar' (أعمدة)
+                type: 'pie',    // ← هنا: 'pie' (دائري) أو 'bar' (أعمدة)
                 data: {
                     labels: ['😊 إيجابي', '😞 سلبي', '😐 محايد'],
                     datasets: [{
@@ -1006,8 +1006,6 @@
                         backgroundColor: ['#00cc66', '#ff3333', '#ffaa00'],
                         borderColor: ['#009944', '#cc0000', '#cc8800'],
                         borderWidth: 2,
-                        borderRadius: 10,  // إضافة زوايا دائرية للأعمدة (اختياري)
-                        barPercentage: 0.7  // عرض العمود (اختياري)
                     }]
                 },
                 options: {
