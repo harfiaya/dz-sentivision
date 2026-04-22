@@ -336,6 +336,24 @@
             font-weight: bold;
         }
         
+        /* تنسيق الرسم البياني */
+        .chart-container {
+            max-width: 450px;
+            margin: 0 auto 25px auto;
+        }
+        
+        .stats-container {
+            background: linear-gradient(135deg, #f5f7fa, #e4e8f0);
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .stats-container p {
+            margin: 8px 0;
+            font-size: 1.1rem;
+        }
+        
         footer {
             background: linear-gradient(135deg, #07264a, #4858b0);
             color: white;
@@ -465,14 +483,14 @@
                     <i class="fas fa-folder-open"></i>
                 </div>
                 <h3>تحليل ملف كامل</h3>
-                <p>رفع مجلد أو ملف ضخم يحتوي على بيانات متعددة للتحليل الشامل.</p>
+                <p>رفع مجلد يحتوي على صور وأرقام متطابقة مع ملف Excel لتحليل المشاعر.</p>
                 <button class="upload-btn" onclick="document.getElementById('folderInput').click()">
                     <i class="fas fa-folder-open"></i> رفع مجلد
                 </button>
                 <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none;" onchange="handleFolderUpload(this)">
                 <div class="file-name" id="folderName"></div>
                 <button class="upload-btn" onclick="analyzeFolder()" style="margin-top:15px;">
-                    <i class="fas fa-search"></i> تحليل المجلد
+                    <i class="fas fa-chart-pie"></i> تحليل المجلد
                 </button>
             </div>
         </div>
@@ -497,11 +515,19 @@
             <div id="errorMessage" style="display:none;" class="error-message"></div>
         </div>
         
-        <!-- قسم الرسم البياني (للمجلد فقط) -->
+        <!-- قسم الرسم البياني للمجلد (بدون تفاصيل) -->
         <div class="result-section" id="folderResultsSection" style="display:none;">
-            <h3 style="color:#07264a; margin-bottom:20px; text-align:center;">📊 نتائج تحليل المجلد</h3>
-            <canvas id="sentimentChart" width="400" height="200" style="max-width:500px; margin:0 auto;"></canvas>
-            <div id="folderDetails" style="margin-top:20px; text-align:right; max-height:300px; overflow-y:auto;"></div>
+            <h3 style="color:#07264a; margin-bottom:25px; text-align:center;">📊 نتائج تحليل المجلد</h3>
+            
+            <!-- الرسم البياني -->
+            <div class="chart-container">
+                <canvas id="sentimentChart" width="400" height="400"></canvas>
+            </div>
+            
+            <!-- الإحصائيات فقط (بدون جدول تفاصيل) -->
+            <div class="stats-container" id="folderStats">
+                <!-- سيتم تعبئتها بواسطة JavaScript -->
+            </div>
         </div>
     </div>
     
@@ -627,7 +653,7 @@
             }
         }
 
-        // دالة عرض النتيجة من API (لن يتم تعديلها)
+        // دالة عرض النتيجة من API
         function displayResult(sentiment, confidence) {
             const sentimentText = document.getElementById('sentimentText');
             const sentimentIcon = document.getElementById('sentimentIcon');
@@ -840,7 +866,7 @@
             }
         }
 
-        // دوال تحليل المجلد
+        // ========== دوال تحليل المجلد (بدون تفاصيل) ==========
         
         // دالة قراءة ملف Excel
         function readExcelFile(file) {
@@ -954,16 +980,17 @@
             }
         }
 
-        // عرض نتائج المجلد مع رسم بياني
-        function displayFolderResults(results, details) {
+        // عرض نتائج المجلد (رسم بياني + إحصائيات فقط)
+        function displayFolderResults(results) {
             const total = results.إيجابي + results.سلبي + results.محايد;
             
             if (total === 0) {
-                document.getElementById('folderDetails').innerHTML = '<p style="color:red;">لا توجد بيانات كافية للتحليل</p>';
+                document.getElementById('folderStats').innerHTML = '<p style="color:red;">❌ لا توجد بيانات كافية للتحليل</p>';
                 document.getElementById('folderResultsSection').style.display = 'block';
                 return;
             }
             
+            // رسم الرسم البياني
             const ctx = document.getElementById('sentimentChart').getContext('2d');
             
             if (window.myChart) {
@@ -973,7 +1000,7 @@
             window.myChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: ['إيجابي', 'سلبي', 'محايد'],
+                    labels: ['😊 إيجابي', '😞 سلبي', '😐 محايد'],
                     datasets: [{
                         data: [results.إيجابي, results.سلبي, results.محايد],
                         backgroundColor: ['#00cc66', '#ff3333', '#ffaa00'],
@@ -1002,57 +1029,13 @@
                 }
             });
             
-            const detailsDiv = document.getElementById('folderDetails');
-            detailsDiv.innerHTML = `
-                <div style="text-align:center; margin-bottom:20px;">
-                    <p>📊 <strong>الإجمالي:</strong> ${total} عنصر تم تحليلهم</p>
-                    <p>😊 <strong style="color:#00cc66;">إيجابي:</strong> ${results.إيجابي} (${((results.إيجابي/total)*100).toFixed(1)}%) | 
-                       😞 <strong style="color:#ff3333;">سلبي:</strong> ${results.سلبي} (${((results.سلبي/total)*100).toFixed(1)}%) | 
-                       😐 <strong style="color:#ffaa00;">محايد:</strong> ${results.محايد} (${((results.محايد/total)*100).toFixed(1)}%)</p>
-                </div>
-                <details>
-                    <summary style="cursor:pointer; background:#07264a; color:white; padding:10px; border-radius:10px; text-align:center;">
-                        📋 عرض التفاصيل
-                    </summary>
-                    <div style="max-height:300px; overflow-y:auto; margin-top:10px;">
-                        <table style="width:100%; border-collapse:collapse; background:white; border-radius:10px; overflow:hidden;">
-                            <thead>
-                                <tr style="background:#07264a; color:white;">
-                                    <th style="padding:10px;">ID</th>
-                                    <th style="padding:10px;">النص</th>
-                                    <th style="padding:10px;">نتيجة النص</th>
-                                    <th style="padding:10px;">نتيجة الصورة</th>
-                                    <th style="padding:10px;">النتيجة النهائية</th>
-                                    <th style="padding:10px;">الثقة</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${details.map(d => `
-                                    <tr style="border-bottom:1px solid #ddd;">
-                                        <td style="padding:8px; text-align:center;">${d.id}</td>
-                                        <td style="padding:8px;">${d.text}</td>
-                                        <td style="padding:8px; text-align:center;">
-                                            <span style="background:${d.textSentiment === 'إيجابي' ? '#00cc66' : (d.textSentiment === 'سلبي' ? '#ff3333' : '#ffaa00')}; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem;">
-                                                ${d.textSentiment}
-                                            </span>
-                                        </td>
-                                        <td style="padding:8px; text-align:center;">
-                                            <span style="background:${d.imageSentiment === 'إيجابي' ? '#00cc66' : (d.imageSentiment === 'سلبي' ? '#ff3333' : '#ffaa00')}; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem;">
-                                                ${d.imageSentiment}
-                                            </span>
-                                        </td>
-                                        <td style="padding:8px; text-align:center;">
-                                            <span style="background:${d.finalSentiment === 'إيجابي' ? '#00cc66' : (d.finalSentiment === 'سلبي' ? '#ff3333' : '#ffaa00')}; color:white; padding:3px 10px; border-radius:20px; font-size:0.8rem;">
-                                                ${d.finalSentiment}
-                                            </span>
-                                        </td>
-                                        <td style="padding:8px; text-align:center;">${Math.round(d.confidence * 100)}%</td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </details>
+            // عرض الإحصائيات النصية فقط (بدون جدول تفاصيل)
+            const statsDiv = document.getElementById('folderStats');
+            statsDiv.innerHTML = `
+                <p>📊 <strong>الإجمالي:</strong> ${total} عنصر تم تحليلهم</p>
+                <p>😊 <strong style="color:#00cc66;">إيجابي:</strong> ${results.إيجابي} (${((results.إيجابي/total)*100).toFixed(1)}%)</p>
+                <p>😞 <strong style="color:#ff3333;">سلبي:</strong> ${results.سلبي} (${((results.سلبي/total)*100).toFixed(1)}%)</p>
+                <p>😐 <strong style="color:#ffaa00;">محايد:</strong> ${results.محايد} (${((results.محايد/total)*100).toFixed(1)}%)</p>
             `;
             
             document.getElementById('folderResultsSection').style.display = 'block';
@@ -1062,12 +1045,12 @@
         // الدالة الرئيسية لتحليل المجلد
         async function analyzeFolder() {
             if (!folderExcelData) {
-                alert('الرجاء رفع مجلد يحتوي على ملف Excel');
+                alert('❌ الرجاء رفع مجلد يحتوي على ملف Excel');
                 return;
             }
             
             if (folderImages.length === 0) {
-                alert('لم يتم العثور على صور في المجلد (يجب أن تكون أسماء الصور أرقام مثل: 1.jpg, 2.png)');
+                alert('❌ لم يتم العثور على صور في المجلد (يجب أن تكون أسماء الصور أرقام مثل: 1.jpg, 2.png)');
                 return;
             }
             
@@ -1086,7 +1069,6 @@
                 }
                 
                 const results = { إيجابي: 0, سلبي: 0, محايد: 0 };
-                const details = [];
                 
                 for (const imageItem of folderImages) {
                     const id = imageItem.id;
@@ -1105,19 +1087,10 @@
                     
                     const combined = combineResults(textResult, imageResult);
                     results[combined.sentiment]++;
-                    
-                    details.push({
-                        id: id,
-                        text: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
-                        textSentiment: textResult.sentiment,
-                        imageSentiment: imageResult.sentiment,
-                        finalSentiment: combined.sentiment,
-                        confidence: combined.confidence
-                    });
                 }
                 
                 hideLoading();
-                displayFolderResults(results, details);
+                displayFolderResults(results);
                 
             } catch (error) {
                 console.error('خطأ:', error);
