@@ -725,8 +725,7 @@
 
 
         
- 
-async function analyzeCombined() {
+        async function analyzeCombined() {
     const text = document.getElementById('combinedTextInput').value.trim();
     if (!text && !currentCombinedImage) {
         alert('الرجاء إدخال نص أو رفع صورة');
@@ -747,18 +746,67 @@ async function analyzeCombined() {
             const result = await response.json();
             hideLoading();
             
-            if (result.combined) {
-                let fixedSentiment = result.combined.sentiment;
-                // تحويل القيم الإنجليزية إلى العربية
-                if (fixedSentiment === 'positive') fixedSentiment = 'إيجابي';
-                if (fixedSentiment === 'negative') fixedSentiment = 'سلبي';
-                if (fixedSentiment === 'neutral') fixedSentiment = 'محايد';
+            if (result.text && result.image) {
+                // 🔧 تطبيق قواعد الدمج المخصصة
+                const textSentiment = result.text.sentiment;
+                const imageSentiment = result.image.sentiment;
+                const textConfidence = result.text.confidence;
+                const imageConfidence = result.image.confidence;
                 
-                displayResult(fixedSentiment, result.combined.confidence);
+                // دالة لتحويل النص إلى قيمة رقمية للمقارنة
+                function getSentimentValue(sentiment) {
+                    if (sentiment === 'إيجابي' || sentiment === 'positive') return 1;
+                    if (sentiment === 'سلبي' || sentiment === 'negative') return -1;
+                    return 0; // محايد
+                }
+                
+                function getSentimentName(value) {
+                    if (value === 1) return 'إيجابي';
+                    if (value === -1) return 'سلبي';
+                    return 'محايد';
+                }
+                
+                const textValue = getSentimentValue(textSentiment);
+                const imageValue = getSentimentValue(imageSentiment);
+                
+                let finalSentiment;
+                let finalConfidence;
+                
+                // تطبيق القواعد
+                if (textValue === imageValue) {
+                    // نفس النتيجة
+                    finalSentiment = getSentimentName(textValue);
+                    finalConfidence = (textConfidence + imageConfidence) / 2;
+                } 
+                else if (textValue === 0) {
+                    // النص محايد ← خذ نتيجة الصورة
+                    finalSentiment = getSentimentName(imageValue);
+                    finalConfidence = imageConfidence;
+                }
+                else if (imageValue === 0) {
+                    // الصورة محايدة ← خذ نتيجة النص
+                    finalSentiment = getSentimentName(textValue);
+                    finalConfidence = textConfidence;
+                }
+                else {
+                    // متعارض (سلبي vs إيجابي) ← محايد
+                    finalSentiment = 'محايد';
+                    finalConfidence = Math.max(textConfidence, imageConfidence) * 0.5;
+                }
+                
+                displayResult(finalSentiment, finalConfidence);
+                
+            } else if (result.text) {
+                // فقط نص موجود
+                displayResult(result.text.sentiment, result.text.confidence);
+            } else if (result.image) {
+                // فقط صورة موجودة
+                displayResult(result.image.sentiment, result.image.confidence);
             } else {
                 displayError('خطأ في التحليل');
             }
         } catch (error) {
+            console.error("Error:", error);
             hideLoading();
             displayError('حدث خطأ في الاتصال');
         }
@@ -776,6 +824,15 @@ async function analyzeCombined() {
     }
 }
 
+
+
+
+
+
+
+
+
+        
 
         
        
