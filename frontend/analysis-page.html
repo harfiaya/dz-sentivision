@@ -678,14 +678,13 @@
         }
 
         // تحليل الصورة 
-        async function analyzeImage() {
+    async function analyzeImage() {
     if (!currentImageFile) {
         alert('الرجاء رفع صورة للتحليل');
         return;
     }
     showLoading();
     
-    // تحويل الصورة إلى base64
     const reader = new FileReader();
     reader.onload = async function(e) {
         const base64 = e.target.result.split(',')[1];
@@ -701,11 +700,22 @@
             hideLoading();
             
             if (result.sentiment) {
-                displayResult(result.sentiment, result.confidence);
+                // 🔧 التعديل هنا فقط: تأكد أن النتيجة بنفس تنسيق النص
+                // نص API يرسل "إيجابي" - صورة API قد ترسل "positive"
+                let fixedSentiment = result.sentiment;
+                
+                // تحويل القيم الإنجليزية إلى العربية (لتناسب displayResult)
+                if (fixedSentiment === 'positive') fixedSentiment = 'إيجابي';
+                if (fixedSentiment === 'negative') fixedSentiment = 'سلبي';
+                if (fixedSentiment === 'neutral') fixedSentiment = 'محايد';
+                
+                // الآن أرسل النتيجة بنفس تنسيق النص
+                displayResult(fixedSentiment, result.confidence);
             } else {
                 displayError(result.error || 'خطأ في التحليل');
             }
         } catch (error) {
+            console.error("Error:", error);
             hideLoading();
             displayError('حدث خطأ في الاتصال');
         }
@@ -713,6 +723,9 @@
     reader.readAsDataURL(currentImageFile);
 }
 
+
+        
+ 
 async function analyzeCombined() {
     const text = document.getElementById('combinedTextInput').value.trim();
     if (!text && !currentCombinedImage) {
@@ -735,7 +748,13 @@ async function analyzeCombined() {
             hideLoading();
             
             if (result.combined) {
-                displayResult(result.combined.sentiment, result.combined.confidence);
+                let fixedSentiment = result.combined.sentiment;
+                // تحويل القيم الإنجليزية إلى العربية
+                if (fixedSentiment === 'positive') fixedSentiment = 'إيجابي';
+                if (fixedSentiment === 'negative') fixedSentiment = 'سلبي';
+                if (fixedSentiment === 'neutral') fixedSentiment = 'محايد';
+                
+                displayResult(fixedSentiment, result.combined.confidence);
             } else {
                 displayError('خطأ في التحليل');
             }
@@ -756,7 +775,6 @@ async function analyzeCombined() {
         await sendRequest();
     }
 }
-
 
 
         
