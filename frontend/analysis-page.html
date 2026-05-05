@@ -995,56 +995,116 @@
             }
             
             // رسم الرسم البياني
-            const ctx = document.getElementById('sentimentChart').getContext('2d');
-            
-            if (window.myChart) {
-                window.myChart.destroy();
-            }
-            
-            window.myChart = new Chart(ctx, {
-                type: 'pie',    // ← هنا: 'pie' (دائري) أو 'bar' (أعمدة)
-                data: {
-                    labels: ['😊 إيجابي', '😞 سلبي', '😐 محايد'],
-                    datasets: [{
-                        data: [results.إيجابي, results.سلبي, results.محايد],
-                        backgroundColor: ['#00cc66', '#ff3333', '#ffaa00'],
-                        borderColor: ['#009944', '#cc0000', '#cc8800'],
-                        borderWidth: 2,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { font: { size: 14 }, usePointStyle: true }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.raw;
-                                    const percentage = ((value / total) * 100).toFixed(1);
-                                    return `${context.label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
+     const ctx = document.getElementById('sentimentChart').getContext('2d');
+
+if (window.myChart) {
+    window.myChart.destroy();
+}
+
+window.myChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['😊 إيجابي', '😞 سلبي', '😐 محايد'],
+        datasets: [{
+            data: [results.إيجابي, results.سلبي, results.محايد],
+            backgroundColor: ['#4CAF9A', '#E07575', '#F0C060'],
+            borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+            borderWidth: 4,
+            hoverOffset: 10,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        cutout: '65%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    font: { size: 13, family: 'Tajawal' },
+                    usePointStyle: true,
+                    padding: 20,
+                    color: '#555'
+                }
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        const value = context.raw;
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${context.label}: ${value} (${percentage}%)`;
                     }
                 }
-            });
-            
-            // عرض الإحصائيات النصية فقط (بدون جدول تفاصيل)
-            const statsDiv = document.getElementById('folderStats');
-            statsDiv.innerHTML = `
-                <p>📊 <strong>الإجمالي:</strong> ${total} عنصر تم تحليلهم</p>
-                <p>😊 <strong style="color:#00cc66;">إيجابي:</strong> ${results.إيجابي} (${((results.إيجابي/total)*100).toFixed(1)}%)</p>
-                <p>😞 <strong style="color:#ff3333;">سلبي:</strong> ${results.سلبي} (${((results.سلبي/total)*100).toFixed(1)}%)</p>
-                <p>😐 <strong style="color:#ffaa00;">محايد:</strong> ${results.محايد} (${((results.محايد/total)*100).toFixed(1)}%)</p>
-            `;
-            
-            document.getElementById('folderResultsSection').style.display = 'block';
-            document.getElementById('resultSection').style.display = 'none';
+            }
+        },
+        animation: {
+            animateRotate: true,
+            duration: 1200,
+            easing: 'easeInOutQuart'
         }
+    }
+});
+
+// ===== عرض الإحصائيات بشكل بطاقات مرئية =====
+const statsDiv = document.getElementById('folderStats');
+statsDiv.innerHTML = `
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:20px;">
+        
+        <!-- الإجمالي -->
+        <div style="background:linear-gradient(135deg,#07264a,#4858b0); border-radius:16px; padding:20px; text-align:center; color:white; box-shadow:0 6px 20px rgba(7,38,74,0.3);">
+            <div style="font-size:2rem; margin-bottom:6px;">📊</div>
+            <div style="font-size:2rem; font-weight:800; line-height:1;">${total}</div>
+            <div style="font-size:0.85rem; opacity:0.85; margin-top:6px;">إجمالي العناصر</div>
+        </div>
+
+        <!-- إيجابي -->
+        <div style="background:linear-gradient(135deg,#009944,#00cc66); border-radius:16px; padding:20px; text-align:center; color:white; box-shadow:0 6px 20px rgba(0,153,68,0.3);">
+            <div style="font-size:2rem; margin-bottom:6px;">😊</div>
+            <div style="font-size:2rem; font-weight:800; line-height:1;">${results.إيجابي}</div>
+            <div style="font-size:0.85rem; opacity:0.85; margin-top:4px;">إيجابي</div>
+            <div style="background:rgba(255,255,255,0.25); border-radius:20px; padding:3px 10px; font-size:0.8rem; font-weight:700; margin-top:8px; display:inline-block;">
+                ${((results.إيجابي/total)*100).toFixed(1)}%
+            </div>
+        </div>
+
+        <!-- سلبي -->
+        <div style="background:linear-gradient(135deg,#cc0000,#ff3333); border-radius:16px; padding:20px; text-align:center; color:white; box-shadow:0 6px 20px rgba(204,0,0,0.3);">
+            <div style="font-size:2rem; margin-bottom:6px;">😞</div>
+            <div style="font-size:2rem; font-weight:800; line-height:1;">${results.سلبي}</div>
+            <div style="font-size:0.85rem; opacity:0.85; margin-top:4px;">سلبي</div>
+            <div style="background:rgba(255,255,255,0.25); border-radius:20px; padding:3px 10px; font-size:0.8rem; font-weight:700; margin-top:8px; display:inline-block;">
+                ${((results.سلبي/total)*100).toFixed(1)}%
+            </div>
+        </div>
+
+        <!-- محايد -->
+        <div style="background:linear-gradient(135deg,#cc8800,#ffaa00); border-radius:16px; padding:20px; text-align:center; color:white; box-shadow:0 6px 20px rgba(204,136,0,0.3);">
+            <div style="font-size:2rem; margin-bottom:6px;">😐</div>
+            <div style="font-size:2rem; font-weight:800; line-height:1;">${results.محايد}</div>
+            <div style="font-size:0.85rem; opacity:0.85; margin-top:4px;">محايد</div>
+            <div style="background:rgba(255,255,255,0.25); border-radius:20px; padding:3px 10px; font-size:0.8rem; font-weight:700; margin-top:8px; display:inline-block;">
+                ${((results.محايد/total)*100).toFixed(1)}%
+            </div>
+        </div>
+
+    </div>
+
+    <!-- شريط التوزيع النسبي -->
+    <div style="margin-top:18px; border-radius:12px; overflow:hidden; height:12px; display:flex;">
+        <div style="width:${((results.إيجابي/total)*100).toFixed(1)}%; background:#00cc66; transition:width 1s;"></div>
+        <div style="width:${((results.سلبي/total)*100).toFixed(1)}%; background:#ff3333; transition:width 1s;"></div>
+        <div style="width:${((results.محايد/total)*100).toFixed(1)}%; background:#ffaa00; transition:width 1s;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:#888; margin-top:5px; padding:0 2px;">
+        <span>إيجابي ${((results.إيجابي/total)*100).toFixed(1)}%</span>
+        <span>سلبي ${((results.سلبي/total)*100).toFixed(1)}%</span>
+        <span>محايد ${((results.محايد/total)*100).toFixed(1)}%</span>
+    </div>
+`;
+
+document.getElementById('folderResultsSection').style.display = 'block';
+document.getElementById('resultSection').style.display = 'none';
+}
 
         // الدالة الرئيسية لتحليل المجلد
         async function analyzeFolder() {
